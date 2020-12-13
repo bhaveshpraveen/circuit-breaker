@@ -2,11 +2,14 @@ import http
 
 import requests
 
+from circuit_breaker import circuit_breaker
+
 faulty_endpoint = "http://localhost:5000/failure"
 success_endpoint = "http://localhost:5000/success"
 random_status_endpoint = "http://localhost:5000/random"
 
 
+@circuit_breaker()
 def make_request(url):
     try:
         response = requests.get(url, timeout=0.3)
