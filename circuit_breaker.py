@@ -116,26 +116,29 @@ class CircuitBreaker:
             return self.handle_open_state(*args, **kwargs)
 
 
-# class APICircuitBreaker:
-#     def __init__(self, exceptions=(Exception,), threshold=5, delay=60):
-#         self.obj = functools.partial(
-#             CircuitBreaker,
-#             exceptions=exceptions,
-#             threshold=threshold,
-#             delay=delay
-#         )
-#
-#     def __call__(self, func):
-#         self.obj = self.obj(func=func)
-#
-#         def decorator(*args, **kwargs):
-#             ret_val = self.obj.make_remote_call(*args, **kwargs)
-#             return ret_val
-#
-#         return decorator
-#
-#
-# circuit_breaker = APICircuitBreaker
+class APICircuitBreaker:
+    def __init__(self, exceptions=(Exception,), threshold=5, delay=60):
+        self.obj = functools.partial(
+            CircuitBreaker,
+            exceptions=exceptions,
+            threshold=threshold,
+            delay=delay
+        )
+
+    def __call__(self, func):
+        self.obj = self.obj(func=func)
+
+        def decorator(*args, **kwargs):
+            ret_val = self.obj.make_remote_call(*args, **kwargs)
+            return ret_val
+
+        return decorator
+
+    def __getattr__(self, item):
+        return getattr(self.obj, item)
+
+
+circuit_breaker = APICircuitBreaker
 
 
 
